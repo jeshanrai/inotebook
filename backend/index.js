@@ -4,6 +4,8 @@ connectToMongo();
 const express = require('express')
 const app = express()
 const port = 3000
+const cors = require('cors') // Import the CORS middleware
+app.use(cors()) // Use the CORS middleware
 app.use(express.json()) // Middleware to parse JSON bodies
 
 
