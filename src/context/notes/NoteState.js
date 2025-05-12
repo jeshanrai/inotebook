@@ -45,6 +45,38 @@ const NoteState = (props) => {
   }
 };
 
+// Edit a Note
+const editNote = async (id, title, description, tag) => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/notes/updatenote/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjgxYjE4ZGYzNGQ1MDdjOTkwMGQ0OTJlIn0sImlhdCI6MTc0NjYzOTQ3NH0.EXj8eSDcZZWxyHh_L2gBV9GL355iP70xScvLWn7991o'
+      },
+      body: JSON.stringify({ title, description, tag })
+    });
+
+    const updatedNote = await response.json();
+    console.log(updatedNote); // You can log the response if needed
+
+    // After successful update, update local state
+    const newNotes = JSON.parse(JSON.stringify(notes)); // Deep copy to avoid direct mutation
+
+    for (let i = 0; i < newNotes.length; i++) {
+      if (newNotes[i]._id === id) {
+        newNotes[i].title = title;
+        newNotes[i].description = description;
+        newNotes[i].tag = tag;
+        break;
+      }
+    }
+    setNotes(newNotes);
+  } catch (error) {
+    console.error("Error updating note:", error);
+  }
+};
+
 
   // Delete a Note
 const deleteNote = async (id) => {
@@ -87,10 +119,9 @@ const deleteNote = async (id) => {
 
 
   return (
-    <NoteContext.Provider value={{ notes, addNote, deleteNote, getNotes }}>
+    <NoteContext.Provider value={{ notes, addNote, editNote, deleteNote, getNotes }}>
       {props.children}
     </NoteContext.Provider>
   );
 };
-
 export default NoteState;

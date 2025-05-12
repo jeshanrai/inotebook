@@ -3,6 +3,8 @@ import React from 'react';
 export default function Noteitem(props) {
     const { note, deleteNote } = props;
     const { title, description, tag } = note;
+    const {updateNote} = props;
+
 
     return (
         <div className="col-md-3">
@@ -17,7 +19,7 @@ export default function Noteitem(props) {
                                 width="20px" 
                                 height="20px" 
                                 style={{ cursor: 'pointer', marginRight: '10px' }}
-                                onClick={() => { /* Handle edit action here if needed */ }}
+                                onClick={() => { updateNote(note); }}
                             />
                             <img 
                                 src="https://img.icons8.com/ios-filled/50/000000/trash.png" 
