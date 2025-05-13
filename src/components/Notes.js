@@ -7,9 +7,13 @@ export default function Notes() {
 const context = useContext(NoteContext);
 const { notes, getNotes, deleteNote,editNote} = context;
 useEffect(() => {
-getNotes();
-// eslint-disable-next-line
-}, [])
+  if (localStorage.getItem('token')) {
+    getNotes();
+  }
+else {
+  window.location.href = '/login';
+}
+}, []);
 const handleClick = (e) => {
   // e.preventDefault();  // not needed here unless you submit a real form
   console.log("Updating the note...", note);
@@ -103,7 +107,7 @@ return (
     <div className="row my-3">
     {   notes.length === 0 && "No notes to display"}
       {notes.map((note) => {  
-       return <Noteitem key={note._id} note={note} updateNote={updateNote} deleteNote={deleteNote} />
+       return <Noteitem key={note._id} note={note}  updateNote={updateNote} deleteNote={deleteNote} />
       })}
         </div>
 

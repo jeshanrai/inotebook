@@ -7,7 +7,11 @@ export default function Navbar() {
     useEffect(() => {
         console.log(location.pathname);
     }, [location]);
-
+const handlelogout = () => {
+        localStorage.removeItem('token');
+        // Redirect to login page or perform any other action
+        window.location.href = '/login';
+    }
     return (
         <>
             <nav className="navbar navbar-expand-lg bg-dark">
@@ -25,10 +29,13 @@ export default function Navbar() {
                             <Link className={`nav-link ${location.pathname === "/about" ? "active" : ""}`} to="/about">About</Link>
                             </li>
                         </ul>
-                        <form className="d-flex ms-auto">
+                        <div className="d-flex ms-auto">
+                        <form className="d-flex ms-left-2">
                             <Link className="btn btn-primary mx-2" to="/login" role="button">Login</Link>
                             <Link className="btn btn-primary mx-2" to="/signup" role="button">SignUp</Link> 
                             </form> 
+                            <button className="btn btn-primary mx-2" onClick={handlelogout}>Log Out</button>n 
+                            </div>
                     </div>
                 </div>
             </nav>

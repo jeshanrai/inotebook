@@ -1,122 +1,97 @@
 import React, { useState } from "react";
 import NoteContext from "./noteContext";
 
-
 const NoteState = (props) => {
-  const initialNotes = [
-    {
-      "_id": "645f0c2a3d4b5e1f8c9e4a1b",
-      "user": "645f0c2a3d4b5e1f8c9e4a1a",
-      "title": "Sample Note",
-      "description": "This is a sample note.",
-      "tag": "general",
-      "date": "2023-05-01T12:00:00Z",
-      "__v": 0
-    },
-    {
-      "_id": "645f0c2a3d4b5e1f8c9e4a1c",
-      "user": "645f0c2a3d4b5e1f8c9e4a1a",
-      "title": "Another Note",
-      "description": "This is another note.",
-      "tag": "work",
-      "date": "2023-05-02T12:00:00Z",
-      "__v": 0
-    }
-  ];
-
+  const initialNotes = [];
   const [notes, setNotes] = useState(initialNotes);
 
   // Add a Note
   const addNote = async (title, description, tag) => {
-  try {
-    const response = await fetch(`http://localhost:3000/api/notes/addnote`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjgxYjE4ZGYzNGQ1MDdjOTkwMGQ0OTJlIn0sImlhdCI6MTc0NjYzOTQ3NH0.EXj8eSDcZZWxyHh_L2gBV9GL355iP70xScvLWn7991o'
-      },
-      body: JSON.stringify({ title, description, tag })
-    });
+    try {
+      const response = await fetch(`http://localhost:3000/api/notes/addnote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': localStorage.getItem('token')
+        },
+        body: JSON.stringify({ title, description, tag })
+      });
 
-    const newNote = await response.json();
-    setNotes(notes.concat(newNote));  // Update your state with the newly created note
-  } catch (error) {
-    console.error("Error adding note:", error);
-  }
-};
-
-// Edit a Note
-const editNote = async (id, title, description, tag) => {
-  try {
-    const response = await fetch(`http://localhost:3000/api/notes/updatenote/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjgxYjE4ZGYzNGQ1MDdjOTkwMGQ0OTJlIn0sImlhdCI6MTc0NjYzOTQ3NH0.EXj8eSDcZZWxyHh_L2gBV9GL355iP70xScvLWn7991o'
-      },
-      body: JSON.stringify({ title, description, tag })
-    });
-
-    const updatedNote = await response.json();
-    console.log(updatedNote); // You can log the response if needed
-
-    // After successful update, update local state
-    const newNotes = JSON.parse(JSON.stringify(notes)); // Deep copy to avoid direct mutation
-
-    for (let i = 0; i < newNotes.length; i++) {
-      if (newNotes[i]._id === id) {
-        newNotes[i].title = title;
-        newNotes[i].description = description;
-        newNotes[i].tag = tag;
-        break;
-      }
+      const newNote = await response.json();
+      setNotes(notes.concat(newNote));
+      props.showAlert("Note added successfully", "success");
+    } catch (error) {
+      props.showAlert("Failed to add note", "danger");
     }
-    setNotes(newNotes);
-  } catch (error) {
-    console.error("Error updating note:", error);
-  }
-};
+  };
 
+  // Edit a Note
+  const editNote = async (id, title, description, tag) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/notes/updatenote/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': localStorage.getItem('token')
+        },
+        body: JSON.stringify({ title, description, tag })
+      });
+
+      await response.json(); // optional: handle if needed
+
+      const newNotes = JSON.parse(JSON.stringify(notes));
+      for (let i = 0; i < newNotes.length; i++) {
+        if (newNotes[i]._id === id) {
+          newNotes[i].title = title;
+          newNotes[i].description = description;
+          newNotes[i].tag = tag;
+          break;
+        }
+      }
+      setNotes(newNotes);
+      props.showAlert("Note updated successfully", "success");
+    } catch (error) {
+      props.showAlert("Failed to update note", "danger");
+    }
+  };
 
   // Delete a Note
-const deleteNote = async (id) => {
-  try {
-    const response = await fetch(`http://localhost:3000/api/notes/deletenote/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjgxYjE4ZGYzNGQ1MDdjOTkwMGQ0OTJlIn0sImlhdCI6MTc0NjYzOTQ3NH0.EXj8eSDcZZWxyHh_L2gBV9GL355iP70xScvLWn7991o'
-      }
-    });
+  const deleteNote = async (id) => {
+    try {
+      await fetch(`http://localhost:3000/api/notes/deletenote/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': localStorage.getItem('token')
+        }
+      });
 
-    const json = await response.json();
-    console.log(json); // You can log the response if needed
+      const newNotes = notes.filter((note) => note._id !== id);
+      setNotes(newNotes);
+      props.showAlert("Note deleted successfully", "success");
+    } catch (error) {
+      props.showAlert("Failed to delete note", "danger");
+    }
+  };
 
-    // After successful deletion, update local state
-    const newNotes = notes.filter((note) => note._id !== id);
-    setNotes(newNotes);
-  } catch (error) {
-    console.error("Error deleting note:", error);
-  }
-};
-
-
-  //get all notes
-    const getNotes = async () => {
-        //api call
-        const response = await fetch("http://localhost:3000/api/notes/fetchallnotes", {
+  // Get All Notes for Logged-in User
+  const getNotes = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/notes/fetchallnotes", {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
-            'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjgxYjE4ZGYzNGQ1MDdjOTkwMGQ0OTJlIn0sImlhdCI6MTc0NjYzOTQ3NH0.EXj8eSDcZZWxyHh_L2gBV9GL355iP70xScvLWn7991o'
+          'Content-Type': 'application/json',
+          'auth-token': localStorage.getItem('token')
         }
-        });
+      });
 
-        const json = await response.json();
-        setNotes(json);
-        console.log(json);
-    };
-
+      const json = await response.json();
+      setNotes(json);
+      props.showAlert("Notes fetched successfully", "success");
+    } catch (error) {
+      props.showAlert("Failed to fetch notes", "danger");
+    }
+  };
 
   return (
     <NoteContext.Provider value={{ notes, addNote, editNote, deleteNote, getNotes }}>
@@ -124,4 +99,5 @@ const deleteNote = async (id) => {
     </NoteContext.Provider>
   );
 };
+
 export default NoteState;

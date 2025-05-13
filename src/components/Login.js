@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-
 import { useNavigate } from 'react-router-dom';
-export default function Login() {
+
+
+export default function Login(props) {
     const [credentials, setCredentials] = useState({ email: "", password: "" });
 const navigate = useNavigate();
     const handleSubmit = async (e) => {
@@ -27,11 +28,10 @@ const navigate = useNavigate();
                 alert("Login successful!");
                localStorage.setItem("token", json.authToken);
              navigate("/home");
-                alert(json.error || "Invalid credentials");
+            props.showAlert("Logged in successfully", "success");
             }
         } catch (err) {
-            console.error("Login error:", err);
-            alert("Something went wrong.");
+            props.showAlert("Something went wrong.", "danger");
         }
     };
 
@@ -70,3 +70,5 @@ const navigate = useNavigate();
         </form>
     );
 }
+
+
